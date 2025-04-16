@@ -1,0 +1,30 @@
+name: Sync to Public Repo
+on:
+  push:
+    branches:
+      - public
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout internal repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Mirror to setup-public
+        env:
+          REPO_URL: https://x-access-token:${{secrets.PUBLIC_REPO_TOKEN}}@github.com/NetSPI/test-setup-public
+        run: |
+          # Add remote
+          git remote add public "$REPO_URL"
+
+          # Push to main of public repo
+          git push public public:main --force
